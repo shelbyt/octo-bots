@@ -6,6 +6,7 @@ import streamlit_analytics2 as streamlit_analytics
 import firebase_admin
 from firebase_admin import credentials, firestore
 import json
+import time
 
 MODEL_NAME = "meta-llama-3.1-70b-instruct"
 API_KEY = st.secrets["inference_api_key"]["key"]
@@ -64,6 +65,11 @@ def initialize_session_state():
 def display_chat_messages():
     for msg in st.session_state.messages:
         st.chat_message(msg["role"]).write(msg["content"])
+        
+def response_generator(response):
+    for word in response.split():
+        yield word + " "
+        time.sleep(0.05)
 
 def handle_user_input(client, system_message):
     if prompt := st.chat_input("Message"):
@@ -72,15 +78,23 @@ def handle_user_input(client, system_message):
 
         # Only send the system message and the latest user message
         messages_for_api = [system_message, {"role": "user", "content": prompt}]
-        response = client.chat.completions.create(
+        stream = client.chat.completions.create(
             model=MODEL_NAME, 
             messages=messages_for_api, 
-            max_tokens=4096
+            max_tokens=4096,
+            stream=True
         )
-        msg = response.choices[0].message.content
-        st.session_state.messages.append({"role": "assistant", "content": msg})
-        st.session_state["response"] = msg
-        st.chat_message("assistant").write(msg)
+        with st.chat_message("assistant"):
+            stream = client.chat.completions.create(
+                model=MODEL_NAME, 
+                messages=messages_for_api, 
+                max_tokens=4096,
+                stream=True
+            )
+            response = st.write_stream(stream)
+        
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state["response"] = response
 
 def write_feedback_to_firestore(db, who, up_down, feedback_message, chat_history, timestamp):
     feedback_ref = db.collection("feedback")
