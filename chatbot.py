@@ -46,7 +46,7 @@ def render_sidebar():
     ''', unsafe_allow_html=True)
 
 def render_main_content():
-    st.title("🐙 GTM Co-Pilot")
+    st.title("🐙 GPU and LLM Memory Usage")
     st.markdown('''
         <h6> Co-Pilot may produce inaccurate outputs; double-check outputs.</span>  
         <br> All prompts are logged anonymously for improvement. 
@@ -70,7 +70,8 @@ def handle_user_input(client, system_message):
         st.session_state.messages.append({"role": "user", "content": prompt})
         st.chat_message("user").write(prompt)
 
-        messages_for_api = [system_message] + st.session_state.messages
+        # Only send the system message and the latest user message
+        messages_for_api = [system_message, {"role": "user", "content": prompt}]
         response = client.chat.completions.create(
             model=MODEL_NAME, 
             messages=messages_for_api, 
