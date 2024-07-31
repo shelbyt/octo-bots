@@ -42,7 +42,7 @@ def render_sidebar():
     ''', unsafe_allow_html=True)
     st.sidebar.markdown('<hr>', unsafe_allow_html=True)
     st.sidebar.markdown('''
-        <small>GPU Bot v0.1 | Jul 2024 | Contact: Shelby Thomas | sthomas@octo.ai </small>
+        <small>GPU Bot v0.1 | Jul 2024 | Contact: Shelby Thomas | sthomas@octo.ai | <a href="https://github.com/octoml/octo-bots-mirror" target="_blank">Github</a> </small>
     ''', unsafe_allow_html=True)
 
 def render_main_content():
