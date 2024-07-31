@@ -7,3 +7,4 @@ venv
 secrets copy.toml
 fb-keys.json
 createfb.py
+chatbot.backup
